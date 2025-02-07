@@ -1,0 +1,241 @@
+********************************************************************************************************************************************************************
+**) Spring-Boot
+- Spring Boot is a framework for building applications in the java programming language.
+- However, spring Boot takes this convenience to the next level by focusing specifically on reducing the eeffort required to setup and configure a spring application.
+
+Advantages
+- Auto Configuration
+- Standalone Application
+
+*) The @SpringBootApplication annotation is use instead of ApplicationContext context = new ClassPathXmlApplicationContext
+	The @SpringBootApplication annotation alone brings in a lot of preconfigured features, including atuomatic component scanning and embedded server configuration, server configuration, which would have required more steps in a traditional spring setup.
+
+*) Packaging
+
+- Jar = Java Archieve
+- War = Web Application Archieve
+The major difference is Jar can be run on command instruction whereas war is to be deployed for running.
+
+**) Starting a project 
+Open Spring Initializer website and create a Maven Project 
+Then drag it into the Intellij
+ 
+********************************************************************************************************************************************************************
+**) Maven 
+
+Maven is a build automation and dependency management tool for Java projects. It helps by:
+
+Managing Dependencies – Automatically downloads and manages external libraries.
+Building the Project – Compiles, tests, and packages code into JAR/WAR files.
+Standardizing Project Structure – Follows a consistent directory layout.
+Handling Plugins – Supports additional tools for testing, deployment, and documentation.
+
+*) Target Folder is used to store Jar
+Jar can be given to anyone for running the code 
+
+********************************************************************************************************************************************************************
+**) Structure of Spring Boot Folders
+- .idea = intellij related files all the things related to Intellij (tools, etc)
+- mvn = maven wrapper for acccessing maven things inside the project 
+- gitignore = here we can write which files we want ignore in the entire project folder
+- src -> main 
+  application.properties = configurations like with mongoDb and soon
+  templates = used to create html template in spring boot
+
+- src -> test
+
+
+- pom.xml
+  All the information and dependencies
+  - plugins = helps in packaging our code and all folders
+  - parents = means it will inherit few dependencies and others 
+  - properties = has compiler plugin with version 
+
+- target -> jar consist of everything like tomcat server
+	mvn clean - to clean
+	mvn package - to make them again
+********************************************************************************************************************************************************************
+- Now we will get the objects from the IOC container instead of making them by ourselves.
+- IOC will scan the @Component for keeping it inside the container means all to take to object 
+- object = bean, now after Writing @Component on class the class can remain inside IOC container
+
+*) @SpringBootApplication
+   consist of @Configuration, @EnableAutoConfiguration, @ComponentScan
+	- @Configuration – This tells Spring that the class contains bean definitions (i.e., methods that create objects managed by Spring).
+	- @EnableAutoConfiguration – This allows Spring Boot to automatically configure beans based on the dependencies you have in your project.
+	- @ComponentScan – This tells Spring to look for components (like @Component, @Service, @Repository, etc.) in the specified package and register them in the 		  Spring container (IoC container).
+
+********************************************************************************************************************************************************************
+
+**) RestAPI = Representational State Transfer Application Programming Interface
+
+HTTP Verb = GET, POST, PUT, DELETE
+
+REST API call meaning we are calling HTTP verb + url
+
+
+**) JournalEntryController.java
+
+package net.engineeringdigest.journalApp.controller;
+
+import net.engineeringdigest.journalApp.entity.JournalEntry;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/journal")
+public class JournalEntryController {
+
+    private Map<Long, JournalEntry> journalEntries = new HashMap<>();
+
+    // Getting
+    @GetMapping
+    public List<JournalEntry> getAll(){ //localhost:8090/journal GET
+        return new ArrayList<>(journalEntries.values());
+    }
+
+    // Submitting
+    @PostMapping
+    public boolean createEntry(@RequestBody JournalEntry myEntry){ //localhost:8090/journal POST
+        journalEntries.put(myEntry.getId(), myEntry);
+        return true;
+    }
+
+    // Getting some number
+    @GetMapping("id/{myId}")
+    public JournalEntry getJournalEntryById(@PathVariable Long myId){
+        return journalEntries.get(myId);
+    }
+
+    // Deleting record
+    @DeleteMapping("id/{myId}")
+    public JournalEntry deleteJournalEntryById(@PathVariable Long myId)
+    {
+        return journalEntries.remove(myId);
+    }
+
+    // Update record
+    @PutMapping("/id/{id}")
+    public JournalEntry updateJournalById(@PathVariable Long id, @RequestBody JournalEntry myEntry){
+        return journalEntries.put(id, myEntry);
+    }
+}
+
+
+**) JournalApplication
+
+package net.engineeringdigest.journalApp;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class JournalApplication {
+
+	public static void main(String[] args) {
+
+		SpringApplication.run(JournalApplication.class, args);
+	}
+
+}
+
+
+**) JournalEntry
+
+package net.engineeringdigest.journalApp.entity;
+
+public class JournalEntry {
+    private long id;
+    private String title;
+    private String content;
+
+    public long getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public JournalEntry(long id, String title, String content) { // Constructor for initialization
+        this.id = id;
+        this.title = title;
+        this.content = content;
+    }
+
+}
+
+**) Here localhost:8090/journal/app
+here app is called end point
+
+********************************************************************************************************************************************************************
+
+*) ORM = object Relational Mapping 
+
+- It is a technique used to map Java Objects to database tables.
+- It allows developers to work with databases using object oriented programming concepts, making it easier to interact with relational databases 
+
+
+*) JPA = Java Persistent API
+- Provides set of rules to achieve ORM, 	 which are implemented by persistence Provider
+- A way to achieve ORM, includes interfaces and annotations that you use in your Java classes, requires, a persistence provider(ORM tools) for implementation
+
+*) Persistence Provider or ORM tools
+- To use JPA, you need a persistence provider is a specfic implementation of the JPA specification. Example of JPA persistence providers include hibernate, EclipseLink and OpenJPA. These providers implement the JPA interfaces and provide the underlying functionality to interact with databases.
+
+*) Spring Data JPA = It is built on the top of the JPA specification, but it is not a JPA implementation itself. instead, it simplifies working with JPA by providing higher level abstractions and utilities. However to use spring Data JPA effectively, you still need a JPA implementation, such as Hibernate, EclipseLink, or another JPA complaint provider, to handle the actual Database interaction.
+
+
+JPA is used in Relational Database not in Mongo Db
+
+-) In case of MongoDB, you dont have a traditional JPA persistence provider. MongoDB is a NoSQL database, and Spring Data MongoDB seves as the "persistence provider" for MongoDB. It provides the necessary abstraction and implementations to work with MongoDB in a spring application.
+
+*) There are two different way to interact with a database
+Query Method Dsl is a simple and convenint way to create queries based on method naming conventions, while the 
+Criteria API offers a more dynamic and programmatic approach for building complex and custom queries
+
+
+********************************************************************************************************************************************************************
+
+
+***) Http Status Code are grouped into five categories based on their first digit
+
+*) 1xx (Informational)
+
+- These status codes indicate that the request was received and understood, and the server is continuing  to process it. These are typically used for information purpose and rarely seen in practice.
+
+*) 2xx (Successful)
+
+- These status codes indicate that the request was successfully received, understood and processed by the server.
+
+*) 3xx (Redirection)
+
+- These status codes indicate that further action is needed to complete the request. They are used when the client needs to take additional steps to access the requested resources.
+
+*) 4xx (Client Error)
+
+- These status codes indicate that there was an error on the clients part such as a malformed request or authentication issue.
+
+*) 5xx (Server Error)
+
+- These status codes that there was an error on the server's part while trying to fulfill the request.
